@@ -1,0 +1,31 @@
+# The behavior of RuboCop can be controlled via the .rubocop.yml
+# configuration file. It makes it possible to enable/disable
+# certain cops (checks) and to alter their behavior if they accept
+# any parameters. The file can be placed either in your home
+# directory or in some project directory.
+#
+# RuboCop will start looking for the configuration file in the directory
+# where the inspected file is and continue its way up to the root directory.
+#
+# See https://docs.rubocop.org/rubocop/configuration
+require:
+ - rubocop-rails
+ - rubocop-rspec
+ - rubocop-performance
+inherit_from:
+  - https://raw.githubusercontent.com/insales/code_style/master/ruby/rubocop.yml
+  - https://raw.githubusercontent.com/insales/code_style/master/ruby/rubocop_rails.yml
+
+# У нас есть файлы с общими правилами для всех проектов на https://github.com/insales/code_style.
+# Сюда вносим изменения только те, которые по каким-то причинам не хотим вносить во все проекты
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 2.0
+  # TargetRubyVersion: 2.7
+  TargetRailsVersion: 6.0
+
+Gemspec/RequireMFA: { Enabled: false }
+
+# не меняем api
+Style/OptionalBooleanParameter: { Enabled: false }

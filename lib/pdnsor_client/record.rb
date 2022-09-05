@@ -1,15 +1,18 @@
+# frozen_string_literal: true
+
 class PdnsorClient
   class Record
     attr_accessor :zone, :data, :_new_record
 
-    def client
-      zone.client
-    end
+    delegate :client, to: :zone
 
     def initialize(data = {}, zone = nil, new_record = true)
-      zone, data = data, {} unless data.is_a? Hash
-      self.zone   = zone
-      self.data   = HashWithIndifferentAccess.new(data)
+      unless data.is_a? Hash
+        zone = data
+        data = {}
+      end
+      self.zone = zone
+      self.data = HashWithIndifferentAccess.new(data)
       self._new_record = new_record
     end
 
@@ -20,7 +23,9 @@ class PdnsorClient
     def save!
       if new_record?
         self.data = client.parse_response(
-          client.request_record(:post, zone.data[:id], nil, record: data), :record)
+          client.request_record(:post, zone.data[:id], nil, record: data),
+          :record
+        )
         self._new_record = false
       else
         client.request_record :put, zone.data[:id], data[:id], record: data

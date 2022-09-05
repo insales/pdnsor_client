@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
 require 'uri'
 require 'json'
 require 'rest_client'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'active_support/core_ext/object/to_query'
+require 'active_support/core_ext/module/delegation'
 
 class PdnsorClient
   attr_accessor :config
@@ -12,7 +15,6 @@ class PdnsorClient
     attr_accessor :config
   end
   self.config = {}
-
 
   def initialize(config = self.class.config)
     self.config = config
@@ -27,7 +29,7 @@ class PdnsorClient
   end
 
   def request_zone(method, id = nil, data = {})
-    result = request method, zone_url(id), data
+    request method, zone_url(id), data
   end
 
   def request_zone_by_name(method, id, data = {})
@@ -65,32 +67,31 @@ class PdnsorClient
     when :domain
       data[:domain]
     when :record
-      {type: data.first[0]}.merge data.first[1]
+      { type: data.first[0] }.merge data.first[1]
     end
   end
 
   def url(path, query = {})
-    URI::Generic::build(
-      scheme:   config[:scheme] || 'https',
+    URI::Generic.build(
+      scheme: config[:scheme] || 'https',
       userinfo: config[:userinfo],
-      host:     config[:host],
-      port:     config[:port],
-      path:     "/api/v1#{path}",
-      query:    { auth_token: config[:auth_token] }.merge(query).to_query
+      host: config[:host],
+      port: config[:port],
+      path: "/api/v1#{path}",
+      query: { auth_token: config[:auth_token] }.merge(query).to_query
     ).to_s
   end
 
   def zone_url(domain_id = nil)
-    url "/domains#{domain_id && '/' + domain_id.to_s}.json"
+    url "/domains#{domain_id && "/#{domain_id}"}.json"
   end
-
 
   def zone_by_name_url(domain_name = nil)
     url "/domains/id.json", domain_name: domain_name
   end
 
   def record_url(domain_id, record_id = nil)
-    url "/domains/#{domain_id}/records#{record_id && '/' + record_id.to_s}.json"
+    url "/domains/#{domain_id}/records#{record_id && "/#{record_id}"}.json"
   end
 end
 

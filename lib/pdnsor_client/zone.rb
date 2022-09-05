@@ -1,9 +1,14 @@
+# frozen_string_literal: true
+
 class PdnsorClient
   class Zone
     attr_accessor :client, :data, :_new_record
 
     def initialize(data = {}, client = nil, new_record = true)
-      client, data = data, {} unless data.is_a? Hash
+      unless data.is_a? Hash
+        client = data
+        data = {}
+      end
       self.client = client
       self.data   = HashWithIndifferentAccess.new(data)
       self._new_record = new_record
@@ -16,7 +21,9 @@ class PdnsorClient
     def save!
       if new_record?
         self.data = client.parse_response(
-          client.request_zone(:post, nil, domain: data), :domain)
+          client.request_zone(:post, nil, domain: data),
+          :domain
+        )
         self._new_record = false
       else
         client.request_zone :put, data[:id], domain: data
