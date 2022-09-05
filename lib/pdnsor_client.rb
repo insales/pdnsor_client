@@ -51,7 +51,6 @@ class PdnsorClient
   end
 
   def request(method, path, data = {})
-    domain, data = nil, domain if domain.is_a? Hash
     @response = RestClient.send method.to_s.downcase, path, data
     unless response.empty? # for :no_content
       result = JSON.parse response
